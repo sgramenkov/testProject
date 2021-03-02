@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@+id/full_size_iv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/top">
+        <Constraint
+            android:id="@+id/full_size_iv"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:alpha="0" />
+
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/bottom">
+        <Constraint
+            android:id="@+id/full_size_iv"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:alpha="0"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </ConstraintSet>
+
+    <Transition
+        android:id="@+id/trTop"
+        app:constraintSetEnd="@id/top"
+        app:constraintSetStart="@id/start"
+        app:duration="1000">
+        <OnSwipe
+            app:dragDirection="dragUp"
+            app:touchAnchorId="@id/full_size_iv"
+            app:touchAnchorSide="middle" />
+    </Transition>
+
+    <Transition
+        android:id="@+id/trBottom"
+        app:constraintSetEnd="@id/bottom"
+        app:constraintSetStart="@id/start"
+        app:duration="1000">
+        <OnSwipe
+            app:dragDirection="dragDown"
+            app:touchAnchorId="@id/full_size_iv"
+            app:touchAnchorSide="middle" />
+    </Transition>
+
+    <!--   <ConstraintSet
+           android:id="@+id/top"
+           app:deriveConstraintsFrom="@id/start">
+           <Constraint
+               android:id="@id/full_size_iv"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               app:layout_constraintBottom_toTopOf="parent"
+               app:layout_constraintEnd_toEndOf="parent"
+               app:layout_constraintStart_toStartOf="parent"
+               app:layout_constraintTop_toTopOf="parent" />
+       </ConstraintSet>
+
+       <ConstraintSet android:id="@+id/topFinish">
+           <Constraint
+               android:id="@id/full_size_iv"
+               android:layout_width="match_parent"
+               android:layout_height="0dp"
+               app:layout_constraintBottom_toTopOf="parent" />
+       </ConstraintSet>
+
+       <ConstraintSet android:id="@+id/bottom">
+           <Constraint
+               android:id="@id/full_size_iv"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               app:layout_constraintTop_toBottomOf="parent" />
+       </ConstraintSet>
+       <ConstraintSet
+           android:id="@+id/bottomFinish"
+           app:deriveConstraintsFrom="@id/bottom">
+           <Constraint
+               android:id="@id/full_size_iv"
+               android:layout_width="match_parent"
+               android:layout_height="0dp"
+               app:layout_constraintTop_toBottomOf="parent" />
+       </ConstraintSet>
+
+       <Transition
+           android:id="@+id/completeBottom"
+           app:autoTransition="animateToEnd"
+           app:constraintSetEnd="@id/bottomFinish"
+           app:constraintSetStart="@id/bottom"
+           app:duration="5000" />
+
+       <Transition
+           android:id="@+id/completeTop"
+           app:autoTransition="animateToEnd"
+           app:constraintSetEnd="@id/topFinish"
+           app:constraintSetStart="@id/top"
+           app:duration="5000" />
+
+       <Transition
+           app:constraintSetEnd="@id/top"
+           app:constraintSetStart="@+id/start"
+           app:duration="5000">
+           <OnSwipe
+               app:dragDirection="dragUp"
+               app:onTouchUp="autoComplete"
+               app:touchAnchorId="@id/full_size_iv"
+               app:touchRegionId="@id/full_size_iv">
+
+           </OnSwipe>
+       </Transition>
+
+       <Transition
+           app:constraintSetEnd="@id/bottom"
+           app:constraintSetStart="@+id/start"
+           app:duration="5000">
+           <OnSwipe
+               app:dragDirection="dragDown"
+               app:onTouchUp="autoComplete"
+               app:touchAnchorId="@id/full_size_iv"
+               app:touchRegionId="@id/full_size_iv">
+
+           </OnSwipe>
+       </Transition>-->
+
+</MotionScene>

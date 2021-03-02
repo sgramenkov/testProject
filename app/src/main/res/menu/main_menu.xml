@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/album"
+        android:title="Album" />
+    <item
+        android:id="@+id/database"
+        android:title="Database" />
+    <item
+        android:id="@+id/service"
+        android:title="Service" />
+</menu>
