@@ -1,5 +1,6 @@
 package com.example.gramenkovtestproject.presentation.modules.photo.view
 
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
@@ -53,6 +54,8 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
     private var isSliding = false
 
     private var isInPhotoView: Boolean = false
+
+    private var progressDialog: AlertDialog? = null
 
     @Inject
     lateinit var presenter: IPhotoPresenter
@@ -121,6 +124,20 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
         return true
     }
 
+    override fun showProgressDialog() {
+        progressDialog =
+            AlertDialog.Builder(this, R.style.AlertDialogCustom)
+                .setCancelable(false)
+                .setView(R.layout.progress_dialog).create()
+
+        progressDialog?.show()
+    }
+
+    override fun hideProgressDialog() {
+        progressDialog?.cancel()
+        progressDialog = null
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.save_album -> {
@@ -144,6 +161,10 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
         return true
     }
 
+    override fun loadfullSizePhoto(bitmap: Bitmap) {
+        findViewById<PhotoView>(R.id.full_size_iv).setImageBitmap(bitmap)
+    }
+
     override fun lockActionBtn() {
         saveAlbumBtn?.isEnabled = false
         deleteAlbumBtn?.isEnabled = false
@@ -163,34 +184,37 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
         fl.animate().alpha(1f).setDuration(300).withStartAction {
             fl.visibility = View.VISIBLE
         }.start()
+        if (!isSavedData) {
+            val glideUrl = GlideUrl(
+                url,
+                LazyHeaders.Builder()
+                    .addHeader("User-Agent", WebSettings.getDefaultUserAgent(App.ctx)).build()
+            )
 
-        val glideUrl = GlideUrl(
-            url,
-            LazyHeaders.Builder()
-                .addHeader("User-Agent", WebSettings.getDefaultUserAgent(App.ctx)).build()
-        )
+            Glide.with(this).load(glideUrl).listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    Toast.makeText(this@PhotoActivity, "Fail $e", Toast.LENGTH_LONG).show()
+                    return false
+                }
 
-        Glide.with(this).load(glideUrl).listener(object : RequestListener<Drawable> {
-            override fun onLoadFailed(
-                e: GlideException?,
-                model: Any?,
-                target: Target<Drawable>?,
-                isFirstResource: Boolean
-            ): Boolean {
-                Toast.makeText(this@PhotoActivity, "Fail $e", Toast.LENGTH_LONG).show()
-                return false
-            }
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+            }).into(findViewById(R.id.full_size_iv))
+        } else
+            presenter.getFullSizePhoto(album?.id ?: -1, id)
 
-            override fun onResourceReady(
-                resource: Drawable?,
-                model: Any?,
-                target: Target<Drawable>?,
-                dataSource: DataSource?,
-                isFirstResource: Boolean
-            ): Boolean {
-                return false
-            }
-        }).into(findViewById(R.id.full_size_iv))
     }
 
     override fun onBackPressed() {

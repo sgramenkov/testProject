@@ -85,8 +85,6 @@ class GeoService : Service() {
                     val latDiff = kotlin.math.abs(lastLat - lat)
 
                     if (lat != 0.0 && lng != 0.0 && lastLat != 0.0 && lastLng != 0.0 && (lngDiff != 0.0 || latDiff != 0.0)) {
-                        Toast.makeText(App.ctx, "Location changed", Toast.LENGTH_SHORT).show()
-                        playMusic()
                         intent.apply {
                             putExtra("lat", lat)
                             putExtra("long", lng)
@@ -109,6 +107,7 @@ class GeoService : Service() {
             }
         }
     }
+
 
     private fun playMusic() {
         if (!isMusicPlaying) {
@@ -142,6 +141,9 @@ class GeoService : Service() {
 
 
         isRunning = true
+
+        playMusic()
+
         return START_STICKY
     }
 
@@ -197,6 +199,7 @@ class GeoService : Service() {
 
     override fun onLowMemory() {
         Toast.makeText(applicationContext, "Low memory", Toast.LENGTH_LONG).show()
+        stopPlayer()
         super.onLowMemory()
     }
 

@@ -8,25 +8,32 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import com.example.gramenkovtestproject.R
 import com.example.gramenkovtestproject.databinding.FragmentServiceBinding
 import com.example.gramenkovtestproject.presentation.base.MainActivity
 import com.example.gramenkovtestproject.services.GeoService
 import com.example.gramenkovtestproject.services.GeoService.Companion.GEO_ACTION
 
 
-class ServiceFragment : Fragment() ,IServiceFragment{
+class ServiceFragment : Fragment(), IServiceFragment {
 
     private lateinit var binding: FragmentServiceBinding
 
     private lateinit var br: BroadcastReceiver
 
     private lateinit var gpsEnabledReceiver: BroadcastReceiver
+
+    private var isMusicPlaying = false
+
+    private val player = MediaPlayer()
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,19 +64,19 @@ class ServiceFragment : Fragment() ,IServiceFragment{
         requireActivity().registerReceiver(br, IntentFilter(GEO_ACTION))
 
         if (GeoService.isRunning) {
-            binding.btn.text = "Stop Service"
+            binding.btn.text = getString(R.string.stop_service)
         } else {
-            binding.btn.text = "Start Service"
+            binding.btn.text = getString(R.string.start_service)
         }
 
         binding.btn.setOnClickListener {
             if (isPermissionsGranted()) {
                 if (!GeoService.isRunning) {
                     activity?.startService(intent)
-                    binding.btn.text = "Stop Service"
+                    binding.btn.text = getString(R.string.stop_service)
                 } else {
                     activity?.stopService(intent)
-                    binding.btn.text = "Start service"
+                    binding.btn.text = getString(R.string.start_service)
                 }
             } else {
                 (activity as MainActivity).reqGeoPerm()
@@ -125,10 +132,17 @@ class ServiceFragment : Fragment() ,IServiceFragment{
         }
     }
 
+
+    override fun onPermissionGranted() {
+        val intent = Intent(requireContext(), GeoService::class.java)
+        activity?.startService(intent)
+        binding.btn.text = getString(R.string.stop_service)
+    }
+
     private fun onGpsDisable() {
-        binding.et.setText("Turn on gps module")
+        binding.et.setText(getString(R.string.turn_on_gps))
         binding.btn.alpha = 0.5f
-        binding.btn.text = "Start Service"
+        binding.btn.text = getString(R.string.start_service)
         binding.btn.isEnabled = false
         activity?.stopService(Intent(requireContext(), GeoService::class.java))
     }
@@ -140,6 +154,7 @@ class ServiceFragment : Fragment() ,IServiceFragment{
             bindEt(lat, long)
         }
     }
+
 
     private fun bindEt(lat: String, long: String) {
         binding.et.setText("Lat: $lat Long: $long")

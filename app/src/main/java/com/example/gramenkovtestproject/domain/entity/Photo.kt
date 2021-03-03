@@ -8,5 +8,5 @@ open class Photo(
     @PrimaryKey var id: Int? = null,
     var title: String? = null,
     var url: String? = null,
-    var thumbnailUrl: String? = null
+    var thumbnailUrl: String? = null,
 ) : RealmObject()

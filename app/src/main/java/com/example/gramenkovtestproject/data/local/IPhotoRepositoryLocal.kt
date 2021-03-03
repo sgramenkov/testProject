@@ -1,5 +1,6 @@
 package com.example.gramenkovtestproject.data.local
 
+import android.graphics.Bitmap
 import com.example.gramenkovtestproject.domain.entity.Album
 import com.example.gramenkovtestproject.domain.entity.Photo
 import com.example.gramenkovtestproject.presentation.base.DataCompletion
@@ -9,4 +10,5 @@ interface IPhotoRepositoryLocal {
     fun savePhotos(album: Album?, list: List<Photo>, completion: DataCompletion<Boolean>)
     fun getSavedPhotos(albumId: Int, completion: DataCompletion<MutableList<Photo>>)
     fun deleteAlbum(albumId: Int,completion: DataCompletion<Boolean>)
+    fun getFullSizePhoto(albumId: Int, position: Int, completion: DataCompletion<Bitmap>)
 }

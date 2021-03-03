@@ -15,6 +15,7 @@ import com.example.gramenkovtestproject.presentation.modules.album.modules.net.v
 import com.example.gramenkovtestproject.presentation.modules.photo.view.PhotoActivity.Companion.PHOTO_CODE
 import com.example.gramenkovtestproject.presentation.modules.album.modules.saved.view.SavedAlbumsFragment
 import com.example.gramenkovtestproject.presentation.modules.album.modules.saved.view.ISavedAlbumsFragment
+import com.example.gramenkovtestproject.presentation.modules.geo.IServiceFragment
 import com.example.gramenkovtestproject.presentation.modules.geo.ServiceFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -54,7 +55,8 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 11 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+            val frag = supportFragmentManager.findFragmentByTag("SRVC") as? IServiceFragment
+            frag?.onPermissionGranted()
         }
     }
 
@@ -65,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         if (!savedAlbumsFragment.isAdded)
             ft.add(container, savedAlbumsFragment, "DB").hide(savedAlbumsFragment)
         if (!serviceFragment.isAdded)
-            ft.add(container, serviceFragment).hide(serviceFragment)
+            ft.add(container, serviceFragment, "SRVC").hide(serviceFragment)
         if (!albumFragment.isAdded)
             ft.add(container, albumFragment).commit()
     }

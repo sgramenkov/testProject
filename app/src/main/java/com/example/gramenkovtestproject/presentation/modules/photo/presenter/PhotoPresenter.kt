@@ -36,12 +36,27 @@ class PhotoPresenter @Inject constructor(
 
     }
 
+    override fun getFullSizePhoto(albumId: Int, id: Int) {
+        localRepo.getFullSizePhoto(albumId, id) { data, error ->
+
+            if (error != null) {
+                getView()?.onError(error)
+            }
+
+            if (data != null) {
+                getView()?.loadfullSizePhoto(data)
+            }
+
+
+        }
+    }
+
     override fun onSaveAlbumBtnClick(album: Album?, list: List<Photo>) {
         getView()?.lockActionBtn()
-
+        getView()?.showProgressDialog()
         localRepo.savePhotos(album, list, completion = { isSuccess, error ->
             getView()?.unlockActionBtn()
-
+            getView()?.hideProgressDialog()
             if (error != null) {
                 getView()?.onError(error)
             }

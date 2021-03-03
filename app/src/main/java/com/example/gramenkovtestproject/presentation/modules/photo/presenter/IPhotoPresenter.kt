@@ -8,4 +8,5 @@ interface IPhotoPresenter {
     fun onSaveAlbumBtnClick(album: Album?, list: List<Photo>)
     fun getSavedPhotos(albumId: Int)
     fun onDeleteBtnClick(albumId: Int)
+    fun getFullSizePhoto(albumId: Int, id: Int)
 }
