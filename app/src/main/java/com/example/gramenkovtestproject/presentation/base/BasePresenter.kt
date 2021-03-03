@@ -17,7 +17,7 @@ open class BasePresenter<V> : IBasePresenter<V> {
 
 interface IBaseView<T> {
     fun onResult(data: T)
-    fun onError(err: String)
+    fun onError(err: String?)
 }
 
 interface IBasePresenter<V> {

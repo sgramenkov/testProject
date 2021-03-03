@@ -1,10 +1,7 @@
 package com.example.gramenkovtestproject.di
 
 import com.example.gramenkovtestproject.data.network.PhotoService
-import com.example.gramenkovtestproject.data.repository.IPhotoRepository
 import com.example.gramenkovtestproject.domain.utils.Keys.BASE_URL
-import com.example.gramenkovtestproject.presentation.modules.album.AlbumPresenter
-import com.example.gramenkovtestproject.presentation.modules.album.IAlbumPresenter
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit

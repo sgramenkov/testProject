@@ -1,11 +1,13 @@
-package com.example.gramenkovtestproject.presentation.modules.album
+package com.example.gramenkovtestproject.presentation.modules.photo.presenter
 
 import com.example.gramenkovtestproject.data.local.IPhotoRepositoryLocal
 import com.example.gramenkovtestproject.data.repository.IPhotoRepository
 import com.example.gramenkovtestproject.domain.entity.Album
 import com.example.gramenkovtestproject.domain.entity.Photo
+import com.example.gramenkovtestproject.domain.utils.NetworkConnection
 import com.example.gramenkovtestproject.presentation.base.BasePresenter
-import com.example.gramenkovtestproject.presentation.modules.photo.IPhotoPresenter
+import com.example.gramenkovtestproject.presentation.modules.photo.presenter.IPhotoPresenter
+import com.example.gramenkovtestproject.presentation.modules.photo.view.IPhotoActivity
 import javax.inject.Inject
 
 class PhotoPresenter @Inject constructor(
@@ -15,19 +17,31 @@ class PhotoPresenter @Inject constructor(
     BasePresenter<IPhotoActivity>() {
 
     override fun getPhotos(albumId: Int) {
-        repo.getPhotos(albumId) { data, error ->
-            if (error != null) getView()?.onError(error)
-            if (data != null) {
-                getView()?.isFromRealm(false)
-                getView()?.onResult(data)
+        if (NetworkConnection.isInternetAvailable()) {
+            getView()?.hideNoInternet()
+            getView()?.showSplash()
+
+            repo.getPhotos(albumId) { data, error ->
+                getView()?.hideSplash()
+                if (error != null) getView()?.onError(error)
+                if (data != null) {
+                    getView()?.isFromRealm(false)
+                    getView()?.onResult(data)
+                }
             }
+        } else {
+            getView()?.showNoInternet()
+            getView()?.onError(null)
         }
+
     }
 
-    override fun savePhotos(album: Album?, list: List<Photo>) {
+    override fun onSaveAlbumBtnClick(album: Album?, list: List<Photo>) {
         getView()?.lockActionBtn()
+
         localRepo.savePhotos(album, list, completion = { isSuccess, error ->
             getView()?.unlockActionBtn()
+
             if (error != null) {
                 getView()?.onError(error)
             }
@@ -40,6 +54,8 @@ class PhotoPresenter @Inject constructor(
 
     override fun getSavedPhotos(albumId: Int) {
         localRepo.getSavedPhotos(albumId) { data, error ->
+            getView()?.hideSplash()
+            getView()?.hideNoInternet()
             if (error != null)
                 getView()?.onError(error)
             if (data != null) {
@@ -49,7 +65,7 @@ class PhotoPresenter @Inject constructor(
         }
     }
 
-    override fun deleteAlbum(albumId: Int) {
+    override fun onDeleteBtnClick(albumId: Int) {
         getView()?.lockActionBtn()
         localRepo.deleteAlbum(albumId) { data, error ->
             getView()?.unlockActionBtn()

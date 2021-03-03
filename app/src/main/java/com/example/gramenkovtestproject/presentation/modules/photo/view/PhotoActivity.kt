@@ -1,4 +1,4 @@
-package com.example.gramenkovtestproject.presentation.modules.album
+package com.example.gramenkovtestproject.presentation.modules.photo.view
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -9,8 +9,9 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebSettings
-import android.widget.ImageView
+import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -27,7 +28,9 @@ import com.example.gramenkovtestproject.databinding.ActivityPhotoBinding
 import com.example.gramenkovtestproject.domain.entity.Album
 import com.example.gramenkovtestproject.domain.entity.Photo
 import com.example.gramenkovtestproject.presentation.modules.album.adapter.PhotoAdapter
-import com.example.gramenkovtestproject.presentation.modules.photo.IPhotoPresenter
+import com.example.gramenkovtestproject.presentation.modules.photo.presenter.IPhotoPresenter
+import com.example.gramenkovtestproject.presentation.modules.photo.presenter.PhotoPresenter
+import com.github.chrisbanes.photoview.PhotoView
 import javax.inject.Inject
 
 class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoItemListener,
@@ -76,7 +79,7 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
 
         presenter.getSavedPhotos(album?.id ?: -1)
 
-        findViewById<MotionLayout>(R.id.motion).addTransitionListener(this)
+        //findViewById<MotionLayout>(R.id.motion).addTransitionListener(this)
     }
 
     override fun isFromRealm(status: Boolean) {
@@ -92,6 +95,21 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
         album = intent.getSerializableExtra("album") as? Album
     }
 
+    override fun hideSplash() {
+        findViewById<FrameLayout>(R.id.splash).visibility = View.GONE
+    }
+
+    override fun showSplash() {
+        findViewById<FrameLayout>(R.id.splash).visibility = View.VISIBLE
+    }
+
+    override fun showNoInternet() {
+        findViewById<FrameLayout>(R.id.no_int).visibility = View.VISIBLE
+    }
+
+    override fun hideNoInternet() {
+        findViewById<FrameLayout>(R.id.no_int).visibility = View.GONE
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_album, menu)
@@ -107,9 +125,20 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
         when (item.itemId) {
             R.id.save_album -> {
                 val items = adapter.getItems() ?: listOf()
-                presenter.savePhotos(album, items)
+                presenter.onSaveAlbumBtnClick(album, items)
             }
-            R.id.delete_album -> presenter.deleteAlbum(album?.id ?: -1)
+            R.id.delete_album -> {
+                AlertDialog.Builder(this, R.style.AlertDialogCustom).setTitle("Delete album?")
+                    .setMessage("Are you sure want to delete album?").setPositiveButton(
+                        "Yes"
+                    ) { dialogInterface, i ->
+                        presenter.onDeleteBtnClick(album?.id ?: -1)
+                        dialogInterface.dismiss()
+                    }.setNegativeButton(
+                        "Cancel"
+                    ) { dialogInterface, i -> dialogInterface.dismiss() }
+                    .create().show()
+            }
             android.R.id.home -> onBackPressed()
         }
         return true
@@ -127,10 +156,12 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
 
     override fun onPhotoClick(id: Int, url: String) {
         isInPhotoView = true
-        val ml = findViewById<MotionLayout>(R.id.motion)
+        val fl = findViewById<FrameLayout>(R.id.frame)
+        fl.animate().alpha(1f).setDuration(300).start()
+
         findViewById<RecyclerView>(R.id.photo_rv).animate().alpha(0f).setDuration(300).start()
-        ml.animate().alpha(1f).setDuration(300).withStartAction {
-            ml.visibility = View.VISIBLE
+        fl.animate().alpha(1f).setDuration(300).withStartAction {
+            fl.visibility = View.VISIBLE
         }.start()
 
         val glideUrl = GlideUrl(
@@ -138,6 +169,7 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
             LazyHeaders.Builder()
                 .addHeader("User-Agent", WebSettings.getDefaultUserAgent(App.ctx)).build()
         )
+
         Glide.with(this).load(glideUrl).listener(object : RequestListener<Drawable> {
             override fun onLoadFailed(
                 e: GlideException?,
@@ -163,11 +195,18 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
 
     override fun onBackPressed() {
         if (isInPhotoView) {
-            val ml = findViewById<MotionLayout>(R.id.motion)
-            findViewById<RecyclerView>(R.id.photo_rv).animate().alpha(1f).setDuration(300).start()
-            ml.animate().alpha(0f).setDuration(300).withEndAction { ml.visibility = View.GONE }
-                .start()
-            isInPhotoView = false
+            val iv = findViewById<PhotoView>(R.id.full_size_iv)
+            if (iv.scale != 1f) {
+                iv.setScale(1f, true)
+            } else {
+                val fl = findViewById<FrameLayout>(R.id.frame)
+                findViewById<RecyclerView>(R.id.photo_rv).animate().alpha(1f).setDuration(300)
+                    .start()
+                fl.animate().alpha(0f).setDuration(300).withEndAction { fl.visibility = View.GONE }
+                    .start()
+                isInPhotoView = false
+            }
+
         } else
             super.onBackPressed()
     }
@@ -194,12 +233,14 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
     }
 
     override fun setDeleteResult() {
+        Toast.makeText(this, "Deleted", Toast.LENGTH_LONG).show()
         setResult(RESULT_OK)
         finish()
     }
 
-    override fun onError(err: String) {
-        Toast.makeText(this, err, Toast.LENGTH_LONG).show()
+    override fun onError(err: String?) {
+        if (err != null)
+            Toast.makeText(this, err, Toast.LENGTH_LONG).show()
     }
 
     override fun changeSaveBtn() {
@@ -207,7 +248,7 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
     }
 
     override fun onDestroy() {
-        binding.motion.removeTransitionListener(this)
+        //binding.motion.removeTransitionListener(this)
         super.onDestroy()
     }
 
@@ -216,7 +257,7 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        if (ev?.action == MotionEvent.ACTION_UP && isSliding) {
+        /*if (ev?.action == MotionEvent.ACTION_UP && isSliding) {
             findViewById<ImageView>(R.id.iv).setImageDrawable(null)
             val ml = findViewById<MotionLayout>(R.id.motion)
             findViewById<RecyclerView>(R.id.photo_rv).animate().alpha(1f).setDuration(300).start()
@@ -226,7 +267,7 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
             }.start()
 
             isInPhotoView = false
-        }
+        }*/
 
         return super.dispatchTouchEvent(ev)
     }
@@ -247,3 +288,26 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
         Log.e("transaction", "trigger")
     }
 }
+
+/*
+class CustomMotionLayout(context: Context, attributeSet: AttributeSet? = null) :
+    MotionLayout(context, attributeSet) {
+
+    var y1: Float = 0f
+    var y2: Float = 0f
+    var dy: Float = 0f
+    override fun onInterceptTouchEvent(event: MotionEvent?): Boolean {
+        Log.e(javaClass.simpleName, "touch")
+
+        val fingerCount = event?.pointerCount
+        if (event?.action == MotionEvent.ACTION_DOWN) {
+            y1 = event.y
+        }
+        if (event?.action == MotionEvent.ACTION_MOVE) {
+            y2 = event.y
+            dy = y2 - y1
+            return dy != 0f
+        }
+        return false
+    }
+}*/

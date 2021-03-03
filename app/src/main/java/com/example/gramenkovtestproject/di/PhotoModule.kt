@@ -5,12 +5,12 @@ import com.example.gramenkovtestproject.data.local.PhotoRepositoryLocal
 import com.example.gramenkovtestproject.data.network.PhotoService
 import com.example.gramenkovtestproject.data.repository.IPhotoRepository
 import com.example.gramenkovtestproject.data.repository.PhotoRepository
-import com.example.gramenkovtestproject.presentation.modules.album.AlbumPresenter
-import com.example.gramenkovtestproject.presentation.modules.album.IAlbumPresenter
-import com.example.gramenkovtestproject.presentation.modules.album.PhotoPresenter
-import com.example.gramenkovtestproject.presentation.modules.database.DatabasePresenter
-import com.example.gramenkovtestproject.presentation.modules.database.IDatabasePresenter
-import com.example.gramenkovtestproject.presentation.modules.photo.IPhotoPresenter
+import com.example.gramenkovtestproject.presentation.modules.album.modules.net.presenter.AlbumPresenter
+import com.example.gramenkovtestproject.presentation.modules.album.modules.net.presenter.IAlbumPresenter
+import com.example.gramenkovtestproject.presentation.modules.photo.presenter.PhotoPresenter
+import com.example.gramenkovtestproject.presentation.modules.album.modules.saved.presenter.SavedAlbumsPresenter
+import com.example.gramenkovtestproject.presentation.modules.album.modules.saved.presenter.ISavedAlbumsPresenter
+import com.example.gramenkovtestproject.presentation.modules.photo.presenter.IPhotoPresenter
 import dagger.Module
 import dagger.Provides
 
@@ -32,6 +32,6 @@ class PhotoModule {
     fun provideLocalPhotoRepo(): IPhotoRepositoryLocal = PhotoRepositoryLocal()
 
     @Provides
-    fun provideDatabasePresenter(repo: IPhotoRepositoryLocal): IDatabasePresenter =
-        DatabasePresenter(repo)
+    fun provideDatabasePresenter(repo: IPhotoRepositoryLocal): ISavedAlbumsPresenter =
+        SavedAlbumsPresenter(repo)
 }

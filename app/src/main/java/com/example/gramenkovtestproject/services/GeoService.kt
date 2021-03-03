@@ -7,15 +7,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.IBinder
 import android.os.Looper
 import android.widget.Toast
+import androidx.coordinatorlayout.R
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+
 import com.example.gramenkovtestproject.App
 import com.example.gramenkovtestproject.presentation.base.MainActivity
 import com.google.android.gms.location.*
-import com.google.android.material.R
 
 class GeoService : Service() {
 
@@ -155,7 +157,7 @@ class GeoService : Service() {
     ): Notification {
         val intent = Intent(this, MainActivity::class.java)
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val nc = NotificationChannel(CHANNEL_ID, "Channel", NotificationManager.IMPORTANCE_HIGH)
             notificatonManager.createNotificationChannel(nc)
         }

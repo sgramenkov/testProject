@@ -1,4 +1,4 @@
-package com.example.gramenkovtestproject.presentation.modules.service
+package com.example.gramenkovtestproject.presentation.modules.geo
 
 import android.Manifest
 import android.content.BroadcastReceiver
@@ -20,7 +20,7 @@ import com.example.gramenkovtestproject.services.GeoService
 import com.example.gramenkovtestproject.services.GeoService.Companion.GEO_ACTION
 
 
-class ServiceFragment : Fragment() {
+class ServiceFragment : Fragment() ,IServiceFragment{
 
     private lateinit var binding: FragmentServiceBinding
 
@@ -37,50 +37,24 @@ class ServiceFragment : Fragment() {
 
         val gpsEnabledFilter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
         gpsEnabledFilter.addAction(Intent.ACTION_PROVIDER_CHANGED)
-        val manager = requireContext().getSystemService(LOCATION_SERVICE) as LocationManager?
 
-        val isProviderEnabled =
-            manager?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: false
 
-        if (!isProviderEnabled) {
+        if (!isProviderEnabled()) {
             onGpsDisable()
         } else {
             onGpsEnable("0.0", "0.0")
         }
 
-        gpsEnabledReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-
-                val m = requireContext().getSystemService(LOCATION_SERVICE) as LocationManager?
-                if (m?.isProviderEnabled(LocationManager.GPS_PROVIDER) != true) {
-                    onGpsDisable()
-                } else {
-                    onGpsEnable("0.0", "0.0")
-                }
-            }
-        }
+        gpsEnabledReceiver = initGpsEnableDisableReceiver()
 
         requireActivity().registerReceiver(gpsEnabledReceiver, gpsEnabledFilter)
 
 
         val intent = Intent(requireContext(), GeoService::class.java)
 
-        br = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                val lat = intent?.getDoubleExtra("lat", 0.0).toString()
-                val long = intent?.getDoubleExtra("long", 0.0).toString()
-                val isProviderEnabled = intent?.getBooleanExtra("isProviderEnabled", false)
-                if (isProviderEnabled == true) {
-                    onGpsEnable(lat, long)
-                } else {
-                    onGpsDisable()
-                }
-            }
-        }
+        br = initGeoReceiver()
 
         requireActivity().registerReceiver(br, IntentFilter(GEO_ACTION))
-
-
 
         if (GeoService.isRunning) {
             binding.btn.text = "Stop Service"
@@ -89,14 +63,7 @@ class ServiceFragment : Fragment() {
         }
 
         binding.btn.setOnClickListener {
-            if (ActivityCompat.checkSelfPermission(
-                    requireActivity(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    requireActivity(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
+            if (isPermissionsGranted()) {
                 if (!GeoService.isRunning) {
                     activity?.startService(intent)
                     binding.btn.text = "Stop Service"
@@ -113,6 +80,49 @@ class ServiceFragment : Fragment() {
 
 
         return binding.root
+    }
+
+    private fun isProviderEnabled(): Boolean {
+        val manager = requireContext().getSystemService(LOCATION_SERVICE) as LocationManager?
+
+        return manager?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: false
+    }
+
+    private fun isPermissionsGranted(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            requireActivity(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+            requireActivity(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun initGpsEnableDisableReceiver(): BroadcastReceiver {
+        return object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (!isProviderEnabled()) {
+                    onGpsDisable()
+                } else {
+                    onGpsEnable("0.0", "0.0")
+                }
+            }
+        }
+    }
+
+    private fun initGeoReceiver(): BroadcastReceiver {
+        return object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val lat = intent?.getDoubleExtra("lat", 0.0).toString()
+                val long = intent?.getDoubleExtra("long", 0.0).toString()
+                val isProviderEnabled = intent?.getBooleanExtra("isProviderEnabled", false)
+                if (isProviderEnabled == true) {
+                    onGpsEnable(lat, long)
+                } else {
+                    onGpsDisable()
+                }
+            }
+        }
     }
 
     private fun onGpsDisable() {

@@ -19,7 +19,7 @@
         android:theme="@style/Theme.GramenkovTestProject"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".presentation.modules.album.PhotoActivity"
+            android:name=".presentation.modules.photo.view.PhotoActivity"
             android:parentActivityName=".presentation.base.MainActivity" />
         <activity android:name=".presentation.base.MainActivity">
             <intent-filter>

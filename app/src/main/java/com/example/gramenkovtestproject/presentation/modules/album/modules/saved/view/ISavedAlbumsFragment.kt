@@ -1,8 +1,8 @@
-package com.example.gramenkovtestproject.presentation.modules.database
+package com.example.gramenkovtestproject.presentation.modules.album.modules.saved.view
 
 import com.example.gramenkovtestproject.domain.entity.Album
 import com.example.gramenkovtestproject.presentation.base.IBaseView
 
-interface IDatabaseFragment : IBaseView<MutableList<Album>> {
+interface ISavedAlbumsFragment : IBaseView<MutableList<Album>> {
     fun updateData()
 }

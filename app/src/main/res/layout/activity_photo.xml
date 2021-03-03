@@ -14,24 +14,36 @@
         tools:itemCount="12"
         tools:listitem="@layout/item_photo" />
 
-    <androidx.constraintlayout.motion.widget.MotionLayout
-        android:id="@+id/motion"
+
+    <FrameLayout
+        android:id="@+id/frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black"
-        android:visibility="gone"
-        app:layoutDescription="@xml/activity_photo_scene">
+        android:alpha="0">
 
-
-        <ImageView
-            android:id="@+id/full_size_iv"
+        <ProgressBar
+            android:id="@+id/pb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@android:color/black"
+            android:layout_gravity="center" />
+
+        <com.github.chrisbanes.photoview.PhotoView
+            android:id="@+id/full_size_iv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@color/black"
             android:scaleType="fitCenter" />
+    </FrameLayout>
 
 
-    </androidx.constraintlayout.motion.widget.MotionLayout>
+    <include
+        android:id="@+id/splash"
+        layout="@layout/layout_splash" />
+
+    <include
+        android:id="@+id/no_int"
+        layout="@layout/layout_no_internet" />
 </FrameLayout>
 
 

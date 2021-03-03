@@ -1,4 +1,4 @@
-package com.example.gramenkovtestproject.presentation.modules.album
+package com.example.gramenkovtestproject.presentation.modules.album.modules.net.view
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,8 +10,11 @@ import androidx.fragment.app.Fragment
 import com.example.gramenkovtestproject.App
 import com.example.gramenkovtestproject.databinding.FragmentAlbumBinding
 import com.example.gramenkovtestproject.domain.entity.Album
-import com.example.gramenkovtestproject.presentation.modules.album.PhotoActivity.Companion.PHOTO_CODE
+import com.example.gramenkovtestproject.presentation.modules.album.modules.net.presenter.AlbumPresenter
+import com.example.gramenkovtestproject.presentation.modules.album.modules.net.presenter.IAlbumPresenter
+import com.example.gramenkovtestproject.presentation.modules.photo.view.PhotoActivity.Companion.PHOTO_CODE
 import com.example.gramenkovtestproject.presentation.modules.album.adapter.AlbumAdapter
+import com.example.gramenkovtestproject.presentation.modules.photo.view.PhotoActivity
 import javax.inject.Inject
 
 class AlbumFragment : Fragment(), IAlbumFragment, AlbumAdapter.AlbumItemListener {
@@ -46,17 +49,34 @@ class AlbumFragment : Fragment(), IAlbumFragment, AlbumAdapter.AlbumItemListener
     }
 
     override fun onAlbumClick(album: Album?) {
-        startActivityForResult(Intent(requireContext(), PhotoActivity::class.java).apply {
+        activity?.startActivityForResult(Intent(requireContext(), PhotoActivity::class.java).apply {
             putExtra("album", album)
             putExtra("savedData", false)
         }, PHOTO_CODE)
+    }
+
+    override fun hideSplash() {
+        binding.splash.root.visibility = View.GONE
+    }
+
+    override fun showSplash() {
+        binding.splash.root.visibility = View.VISIBLE
+    }
+
+    override fun showNoInternet() {
+        binding.noInt.root.visibility = View.VISIBLE
+    }
+
+    override fun hideNoInternet() {
+        binding.noInt.root.visibility = View.GONE
     }
 
     override fun onResult(data: List<Album>?) {
         adapter.addItems(data)
     }
 
-    override fun onError(err: String) {
-        Toast.makeText(requireContext(), err, Toast.LENGTH_LONG).show()
+    override fun onError(err: String?) {
+        if (err != null)
+            Toast.makeText(requireContext(), err, Toast.LENGTH_LONG).show()
     }
 }

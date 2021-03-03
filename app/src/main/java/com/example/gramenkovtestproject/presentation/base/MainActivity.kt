@@ -11,11 +11,11 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.example.gramenkovtestproject.R
 import com.example.gramenkovtestproject.databinding.ActivityMainBinding
-import com.example.gramenkovtestproject.presentation.modules.album.AlbumFragment
-import com.example.gramenkovtestproject.presentation.modules.album.PhotoActivity.Companion.PHOTO_CODE
-import com.example.gramenkovtestproject.presentation.modules.database.DatabaseFragment
-import com.example.gramenkovtestproject.presentation.modules.database.IDatabaseFragment
-import com.example.gramenkovtestproject.presentation.modules.service.ServiceFragment
+import com.example.gramenkovtestproject.presentation.modules.album.modules.net.view.AlbumFragment
+import com.example.gramenkovtestproject.presentation.modules.photo.view.PhotoActivity.Companion.PHOTO_CODE
+import com.example.gramenkovtestproject.presentation.modules.album.modules.saved.view.SavedAlbumsFragment
+import com.example.gramenkovtestproject.presentation.modules.album.modules.saved.view.ISavedAlbumsFragment
+import com.example.gramenkovtestproject.presentation.modules.geo.ServiceFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val albumFragment: AlbumFragment = AlbumFragment()
-    private val databaseFragment: DatabaseFragment = DatabaseFragment()
+    private val savedAlbumsFragment: SavedAlbumsFragment = SavedAlbumsFragment()
     private val serviceFragment: ServiceFragment = ServiceFragment()
 
     private var currentFrag: Fragment = albumFragment
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         bottomNavListener()
     }
 
-     fun reqGeoPerm() {
+    fun reqGeoPerm() {
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 11 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == 11 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
         }
     }
@@ -62,8 +62,8 @@ class MainActivity : AppCompatActivity() {
         @IdRes val container = R.id.fragment_container
         val ft = supportFragmentManager.beginTransaction()
 
-        if (!databaseFragment.isAdded)
-            ft.add(container, databaseFragment, "DB").hide(databaseFragment)
+        if (!savedAlbumsFragment.isAdded)
+            ft.add(container, savedAlbumsFragment, "DB").hide(savedAlbumsFragment)
         if (!serviceFragment.isAdded)
             ft.add(container, serviceFragment).hide(serviceFragment)
         if (!albumFragment.isAdded)
@@ -83,10 +83,10 @@ class MainActivity : AppCompatActivity() {
                     return@setOnNavigationItemSelectedListener true
                 }
                 R.id.database -> {
-                    if (currentFrag != databaseFragment) {
+                    if (currentFrag != savedAlbumsFragment) {
                         supportFragmentManager.beginTransaction()
-                            .show(databaseFragment).hide(currentFrag).commit()
-                        currentFrag = databaseFragment
+                            .show(savedAlbumsFragment).hide(currentFrag).commit()
+                        currentFrag = savedAlbumsFragment
                     }
                     return@setOnNavigationItemSelectedListener true
                 }
@@ -107,8 +107,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PHOTO_CODE && resultCode == RESULT_OK) {
-            val frag = supportFragmentManager.findFragmentByTag("DB") as? IDatabaseFragment
+        if (requestCode == PHOTO_CODE && (resultCode == RESULT_OK || resultCode == RESULT_CANCELED)) {
+            val frag = supportFragmentManager.findFragmentByTag("DB") as? ISavedAlbumsFragment
             frag?.updateData()
         }
     }
