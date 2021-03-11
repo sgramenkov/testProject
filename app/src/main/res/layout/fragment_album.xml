@@ -21,4 +21,5 @@
     <include
         android:id="@+id/no_int"
         layout="@layout/layout_no_internet" />
+
 </FrameLayout>

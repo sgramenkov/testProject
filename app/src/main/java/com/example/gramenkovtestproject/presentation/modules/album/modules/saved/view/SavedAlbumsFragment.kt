@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import com.example.gramenkovtestproject.App
 import com.example.gramenkovtestproject.databinding.FragmentSavedBinding
 import com.example.gramenkovtestproject.domain.entity.Album
+import com.example.gramenkovtestproject.domain.utils.Keys.ALBUM_BUNDLE
+import com.example.gramenkovtestproject.domain.utils.Keys.SAVED_DATA_BUNDLE
 import com.example.gramenkovtestproject.presentation.modules.photo.view.PhotoActivity
 import com.example.gramenkovtestproject.presentation.modules.photo.view.PhotoActivity.Companion.PHOTO_CODE
 import com.example.gramenkovtestproject.presentation.modules.album.adapter.AlbumAdapter
@@ -20,7 +22,6 @@ import javax.inject.Inject
 class SavedAlbumsFragment : Fragment(), AlbumAdapter.AlbumItemListener, ISavedAlbumsFragment {
 
     private lateinit var binding: FragmentSavedBinding
-
 
     private lateinit var adapter: AlbumAdapter
 
@@ -42,7 +43,6 @@ class SavedAlbumsFragment : Fragment(), AlbumAdapter.AlbumItemListener, ISavedAl
 
         adapter = AlbumAdapter(mutableListOf(), this)
         binding.savedAlbumsRv.adapter = adapter
-
 
         return binding.root
     }
@@ -74,8 +74,8 @@ class SavedAlbumsFragment : Fragment(), AlbumAdapter.AlbumItemListener, ISavedAl
 
     override fun onAlbumClick(album: Album?) {
         activity?.startActivityForResult(Intent(requireContext(), PhotoActivity::class.java).apply {
-            putExtra("album", album)
-            putExtra("savedData", true)
+            putExtra(ALBUM_BUNDLE, album)
+            putExtra(SAVED_DATA_BUNDLE, true)
         }, PHOTO_CODE)
     }
 

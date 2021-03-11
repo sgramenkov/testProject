@@ -16,11 +16,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 
 import com.example.gramenkovtestproject.App
+import com.example.gramenkovtestproject.domain.utils.Keys
+import com.example.gramenkovtestproject.domain.utils.Keys.LAT
+import com.example.gramenkovtestproject.domain.utils.Keys.LNG
+import com.example.gramenkovtestproject.domain.utils.Keys.PROVIDER_ENABLED
 import com.example.gramenkovtestproject.presentation.base.MainActivity
 import com.google.android.gms.location.*
 
 class GeoService : Service() {
-
 
     private var isMusicPlaying = false
 
@@ -43,7 +46,6 @@ class GeoService : Service() {
     private val notificatonManager =
         App.ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-
     companion object {
         const val GEO_ACTION = "com.gramenkov.geo"
         var isRunning = false
@@ -53,12 +55,12 @@ class GeoService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        locationRequest = LocationRequest()
-        locationRequest?.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest?.interval = UPDATE_INTERVAL
-        locationRequest?.fastestInterval = FASTEST_INTERVAL
+        locationRequest = LocationRequest().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = UPDATE_INTERVAL
+            fastestInterval = FASTEST_INTERVAL
+        }
         initLocationListener()
-
     }
 
     private fun initLocationListener() {
@@ -75,32 +77,32 @@ class GeoService : Service() {
             client = LocationServices.getFusedLocationProviderClient(applicationContext)
             callbackGeo = object : LocationCallback() {
                 override fun onLocationResult(p0: LocationResult?) {
-
                     val location = p0?.lastLocation
+
                     val lat = location?.latitude ?: 0.0
                     val lng = location?.longitude ?: 0.0
-
 
                     val lngDiff = kotlin.math.abs(lastLng - lng)
                     val latDiff = kotlin.math.abs(lastLat - lat)
 
                     if (lat != 0.0 && lng != 0.0 && lastLat != 0.0 && lastLng != 0.0 && (lngDiff != 0.0 || latDiff != 0.0)) {
                         intent.apply {
-                            putExtra("lat", lat)
-                            putExtra("long", lng)
-                            putExtra("isProviderEnabled", true)
+                            putExtra(LAT, lat)
+                            putExtra(LNG, lng)
+                            putExtra(PROVIDER_ENABLED, true)
                         }
 
                         val notification = buildNotification(
-                            "Current location",
-                            "Lat: $lat, Lng: $lng",
-                            javaClass.simpleName,
-                            false
+                            title = "Current location",
+                            content = "Lat: $lat, Lng: $lng",
+                            subText = javaClass.simpleName,
+                            isAutoCancel = false
                         )
 
                         notificatonManager.notify(NOTIFICATION_ID_SERVICE, notification)
                         sendBroadcast(intent)
                     }
+
                     lastLat = lat
                     lastLng = lng
                 }
@@ -108,48 +110,43 @@ class GeoService : Service() {
         }
     }
 
-
     private fun playMusic() {
         if (!isMusicPlaying) {
             isMusicPlaying = true
 
             val asd = assets.openFd("music.mp3")
-            player.setDataSource(asd.fileDescriptor, asd.startOffset, asd.length)
-            player.setOnCompletionListener {
-                isMusicPlaying = false
-                stopPlayer()
-            }
-            player.prepare()
-            player.start()
+            player.apply {
+                setDataSource(asd.fileDescriptor, asd.startOffset, asd.length)
 
+                setOnCompletionListener {
+                    isMusicPlaying = false
+                    stopPlayer()
+                }
+
+                prepare()
+                start()
+            }
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         init()
-        val notification =
-            buildNotification(
-                "Current location",
-                "Finding your coords",
-                javaClass.simpleName,
-                false
-            )
+
+        val notification = buildNotification(
+            title = getString(com.example.gramenkovtestproject.R.string.current_loc),
+            content = getString(com.example.gramenkovtestproject.R.string.finding_your_coords),
+            subText = javaClass.simpleName,
+            isAutoCancel = false
+        )
 
         notificatonManager.notify(NOTIFICATION_ID_SERVICE, notification)
-
         startForeground(NOTIFICATION_ID_SERVICE, notification)
-
-
         isRunning = true
-
         playMusic()
-
         return START_STICKY
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
+    override fun onBind(intent: Intent?): IBinder? = null
 
     private fun buildNotification(
         title: String,
@@ -163,11 +160,10 @@ class GeoService : Service() {
             val nc = NotificationChannel(CHANNEL_ID, "Channel", NotificationManager.IMPORTANCE_HIGH)
             notificatonManager.createNotificationChannel(nc)
         }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
 
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent, 0
-        )
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
@@ -182,12 +178,11 @@ class GeoService : Service() {
         return notification.build()
     }
 
-
     override fun onDestroy() {
         isRunning = false
         stopPlayer()
         client?.removeLocationUpdates(callbackGeo)
-        Toast.makeText(App.ctx, "Service stopped", Toast.LENGTH_SHORT).show()
+        Toast.makeText(App.ctx, getString(com.example.gramenkovtestproject.R.string.service_stopped), Toast.LENGTH_SHORT).show()
         super.onDestroy()
     }
 
@@ -198,11 +193,10 @@ class GeoService : Service() {
     }
 
     override fun onLowMemory() {
-        Toast.makeText(applicationContext, "Low memory", Toast.LENGTH_LONG).show()
+        Toast.makeText(applicationContext, getString(com.example.gramenkovtestproject.R.string.low_memory), Toast.LENGTH_LONG).show()
         stopPlayer()
         super.onLowMemory()
     }
-
 
     private fun init() {
 
@@ -214,7 +208,6 @@ class GeoService : Service() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-
             return
         }
 

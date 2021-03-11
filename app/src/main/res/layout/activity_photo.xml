@@ -36,7 +36,6 @@
             android:scaleType="fitCenter" />
     </FrameLayout>
 
-
     <include
         android:id="@+id/splash"
         layout="@layout/layout_splash" />

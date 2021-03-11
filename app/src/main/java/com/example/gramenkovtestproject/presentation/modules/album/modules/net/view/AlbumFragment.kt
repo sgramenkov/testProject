@@ -10,6 +10,9 @@ import androidx.fragment.app.Fragment
 import com.example.gramenkovtestproject.App
 import com.example.gramenkovtestproject.databinding.FragmentAlbumBinding
 import com.example.gramenkovtestproject.domain.entity.Album
+import com.example.gramenkovtestproject.domain.utils.Keys
+import com.example.gramenkovtestproject.domain.utils.Keys.ALBUM_BUNDLE
+import com.example.gramenkovtestproject.domain.utils.Keys.SAVED_DATA_BUNDLE
 import com.example.gramenkovtestproject.presentation.modules.album.modules.net.presenter.AlbumPresenter
 import com.example.gramenkovtestproject.presentation.modules.album.modules.net.presenter.IAlbumPresenter
 import com.example.gramenkovtestproject.presentation.modules.photo.view.PhotoActivity.Companion.PHOTO_CODE
@@ -50,8 +53,8 @@ class AlbumFragment : Fragment(), IAlbumFragment, AlbumAdapter.AlbumItemListener
 
     override fun onAlbumClick(album: Album?) {
         activity?.startActivityForResult(Intent(requireContext(), PhotoActivity::class.java).apply {
-            putExtra("album", album)
-            putExtra("savedData", false)
+            putExtra(ALBUM_BUNDLE, album)
+            putExtra(SAVED_DATA_BUNDLE, false)
         }, PHOTO_CODE)
     }
 

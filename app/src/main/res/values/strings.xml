@@ -7,4 +7,12 @@
     <string name="stop_service">Stop Service</string>
     <string name="start_service">Start service</string>
     <string name="turn_on_gps">Turn on gps module</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_album_title">Delete album?</string>
+    <string name="delete_album_msg">Are you sure want to delete album?</string>
+    <string name="low_memory">Low memory</string>
+    <string name="service_stopped">Service stopped</string>
+    <string name="current_loc">Current location</string>
+    <string name="finding_your_coords">Finding your coords</string>
 </resources>

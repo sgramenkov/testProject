@@ -28,6 +28,8 @@ import com.example.gramenkovtestproject.R
 import com.example.gramenkovtestproject.databinding.ActivityPhotoBinding
 import com.example.gramenkovtestproject.domain.entity.Album
 import com.example.gramenkovtestproject.domain.entity.Photo
+import com.example.gramenkovtestproject.domain.utils.Keys.ALBUM_BUNDLE
+import com.example.gramenkovtestproject.domain.utils.Keys.SAVED_DATA_BUNDLE
 import com.example.gramenkovtestproject.presentation.modules.album.adapter.PhotoAdapter
 import com.example.gramenkovtestproject.presentation.modules.photo.presenter.IPhotoPresenter
 import com.example.gramenkovtestproject.presentation.modules.photo.presenter.PhotoPresenter
@@ -82,7 +84,6 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
 
         presenter.getSavedPhotos(album?.id ?: -1)
 
-        //findViewById<MotionLayout>(R.id.motion).addTransitionListener(this)
     }
 
     override fun isFromRealm(status: Boolean) {
@@ -94,8 +95,8 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
     }
 
     private fun getDataFromArgs() {
-        isSavedData = intent.getBooleanExtra("savedData", false)
-        album = intent.getSerializableExtra("album") as? Album
+        isSavedData = intent.getBooleanExtra(SAVED_DATA_BUNDLE, false)
+        album = intent.getSerializableExtra(ALBUM_BUNDLE) as? Album
     }
 
     override fun hideSplash() {
@@ -145,15 +146,15 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
                 presenter.onSaveAlbumBtnClick(album, items)
             }
             R.id.delete_album -> {
-                AlertDialog.Builder(this, R.style.AlertDialogCustom).setTitle("Delete album?")
-                    .setMessage("Are you sure want to delete album?").setPositiveButton(
-                        "Yes"
-                    ) { dialogInterface, i ->
+                AlertDialog.Builder(this, R.style.AlertDialogCustom).setTitle(getString(R.string.delete_album_title))
+                    .setMessage(getString(R.string.delete_album_msg)).setPositiveButton(
+                        getString(R.string.yes)
+                    ) { dialogInterface, _ ->
                         presenter.onDeleteBtnClick(album?.id ?: -1)
                         dialogInterface.dismiss()
                     }.setNegativeButton(
-                        "Cancel"
-                    ) { dialogInterface, i -> dialogInterface.dismiss() }
+                        getString(R.string.cancel)
+                    ) { dialogInterface, _ -> dialogInterface.dismiss() }
                     .create().show()
             }
             android.R.id.home -> onBackPressed()
@@ -271,29 +272,8 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
         saveAlbumBtn?.title = "Saved"
     }
 
-    override fun onDestroy() {
-        //binding.motion.removeTransitionListener(this)
-        super.onDestroy()
-    }
-
     companion object {
         const val PHOTO_CODE = 10
-    }
-
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        /*if (ev?.action == MotionEvent.ACTION_UP && isSliding) {
-            findViewById<ImageView>(R.id.iv).setImageDrawable(null)
-            val ml = findViewById<MotionLayout>(R.id.motion)
-            findViewById<RecyclerView>(R.id.photo_rv).animate().alpha(1f).setDuration(300).start()
-            ml.animate().alpha(0f).setDuration(300).withEndAction {
-                ml.visibility = View.GONE
-                ml.progress = 0f
-            }.start()
-
-            isInPhotoView = false
-        }*/
-
-        return super.dispatchTouchEvent(ev)
     }
 
     override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
@@ -312,26 +292,3 @@ class PhotoActivity : AppCompatActivity(), IPhotoActivity, PhotoAdapter.PhotoIte
         Log.e("transaction", "trigger")
     }
 }
-
-/*
-class CustomMotionLayout(context: Context, attributeSet: AttributeSet? = null) :
-    MotionLayout(context, attributeSet) {
-
-    var y1: Float = 0f
-    var y2: Float = 0f
-    var dy: Float = 0f
-    override fun onInterceptTouchEvent(event: MotionEvent?): Boolean {
-        Log.e(javaClass.simpleName, "touch")
-
-        val fingerCount = event?.pointerCount
-        if (event?.action == MotionEvent.ACTION_DOWN) {
-            y1 = event.y
-        }
-        if (event?.action == MotionEvent.ACTION_MOVE) {
-            y2 = event.y
-            dy = y2 - y1
-            return dy != 0f
-        }
-        return false
-    }
-}*/
